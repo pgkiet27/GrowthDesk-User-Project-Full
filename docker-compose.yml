@@ -1,0 +1,85 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: frontend
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api
+    container_name: frontend-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api
+    dns:
+      - 8.8.8.8 # force use Google DNS to find S3
+    depends_on:
+      - backend
+      - postgres
+      - rabbitmq
+      - mongo
+    networks:
+      - growthdesk-network
+
+  backend:
+    build: backend
+    container_name: backend-service
+    ports:
+      - "4000:4000"
+    env_file:
+      - backend/.env.prod
+    depends_on:
+      - postgres
+      - rabbitmq
+      - mongo
+    networks:
+      - growthdesk-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-service
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: giakiet2712004
+      POSTGRES_DB: ecommerce-user
+    networks:
+      - growthdesk-network
+
+  mongo:
+    image: mongo:6.0.5
+    container_name: mongo-service
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    env_file:
+      - backend/.env.prod
+    networks:
+      - growthdesk-network
+
+  rabbitmq:
+    image: rabbitmq:4.2-management-alpine
+    container_name: rabbitmq-service
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: always
+    networks:
+      - growthdesk-network
+
+volumes:
+  postgres_data:
+  mongo_data:
+  rabbitmq_data:
+
+networks:
+  growthdesk-network:
+    driver: bridge

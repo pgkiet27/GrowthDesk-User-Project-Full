@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nestjs-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nestjs-backend
+  template:
+    metadata:
+      labels:
+        app: nestjs-backend
+    spec:
+      serviceAccountName: nestjs-sa
+      containers:
+        - name: nestjs
+          imagePullPolicy: Always
+          image: 084828583507.dkr.ecr.us-east-1.amazonaws.com/growthdesk-backend:v1.0.0
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef:
+                name: nestjs-config
+            - secretRef:
+                name: postgres-db-secret
+            - secretRef:
+                name: rabbitmq-secret
+            - secretRef:
+                name: mongodb-secret
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 4000
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 4000
+            initialDelaySeconds: 60

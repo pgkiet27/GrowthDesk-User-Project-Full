@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nestjs-config
+data:
+  DATABASE_URL: "postgresql://postgres:giakiet2712004@postgres-service:5432/ecommerce-user"
+  RABBITMQ_URI: "amqp://admin:admin@rabbitmq-internal:5672"
+  MONGO_URI: "mongodb://mongo:giakiet2712004@mongodb-service:27017/reset-password?authSource=admin"
+
+  JWT_SECRET: "jwt_secret_key_growthdesk"
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: "3600000"
+  JWT_REFRESH_SECRET: "jwt_refresh_secret_key_growthdesk"
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME: "2592000000"
+
+  NODE_ENV: "development"
+  EMAIL_TEMPLATES_DIR: "dist/email/templates"
